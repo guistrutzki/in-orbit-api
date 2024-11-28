@@ -1,5 +1,6 @@
 import fastify from 'fastify'
 import {
+  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
@@ -10,6 +11,8 @@ import { createCompletionRoute } from './routes/create-completion'
 import { getPendingGoalsRoute } from './routes/get-peding-goals'
 import { getWeekSummaryRoute } from './routes/get-week-summary'
 import fastifyCors from '@fastify/cors'
+import { fastifySwagger } from '@fastify/swagger'
+import { fastifySwaggerUi } from '@fastify/swagger-ui'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -19,6 +22,20 @@ app.register(fastifyCors, {
 
 app.setValidatorCompiler(validatorCompiler)
 app.setSerializerCompiler(serializerCompiler)
+
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: 'Orbit API',
+      version: '1.0.0',
+    },
+  },
+  transform: jsonSchemaTransform,
+})
+
+app.register(fastifySwaggerUi, {
+  routePrefix: '/docs',
+})
 
 app.register(createGoalRoute)
 app.register(createCompletionRoute)
